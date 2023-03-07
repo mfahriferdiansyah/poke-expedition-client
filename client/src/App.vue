@@ -1,12 +1,17 @@
 <script>
 import { RouterLink, RouterView } from 'vue-router'
-
+import vSidebar from './components/Sidebar.vue'
+export default {
+  components: {
+    vSidebar
+  }
+}
 </script>
 
 <template>
-  <header>
-    
-  </header>
+  <div class="flex">
+    <vSidebar />
+    <RouterView />
+  </div>
 
-  <RouterView />
 </template>
