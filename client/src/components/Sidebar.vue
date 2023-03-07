@@ -8,12 +8,13 @@
       >
         <div class="flex flex-col gap-5">
           <!-- Logo -->
-          <img
-            
-            class="scale-60 mb-8 rounded-md p-5 realtive"
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/2560px-International_Pok%C3%A9mon_logo.svg.png"
-            alt=""
-          />
+          <div class="mb-3">
+            <img
+              
+              class="scale-60 p-5 realtivec border-b-2 border-blue-800"
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/2560px-International_Pok%C3%A9mon_logo.svg.png"
+            />
+          </div>
           <!-- Menu -->
           <button
             class="flex justify-center gap-2 bg-blue-800 p-2 text-start text-lg font-semibold text-white mx-5 rounded-md"
