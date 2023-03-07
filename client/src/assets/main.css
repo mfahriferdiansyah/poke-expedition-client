@@ -14,3 +14,11 @@
 .btn-anima:hover span, button:hover span {
   max-width: 7rem;
 }
+
+	.shadow{
+		width: 18px;
+		height: 4px;
+		background:  black;
+		margin: 5px auto 0 auto;
+		border-radius: 50%;
+	}
