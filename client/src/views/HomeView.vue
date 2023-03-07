@@ -1,18 +1,62 @@
 <script>
 import Marker from '../components/Marker.vue'
 import PokemonCard from '../components/PokemonCard.vue'
+import { mapActions, mapState } from 'pinia'
+import { usePokemonStore } from '../stores/pokemon'
+
 export default {
   components: {
     Marker,
     PokemonCard
   },
+  computed: {
+    ...mapState(usePokemonStore, ['pokemonInExpedition', 'pokemonNotInExpedition'])
+  },
   data() {
     return {
       orange: '#FDB999',
       yellow: '#FEF08A',
-      show: true,
-      pokeList: true
+      show: false,
+      pokeList: true,
+      RegionId: ''
     }
+  },
+  methods: {
+    ...mapActions(usePokemonStore, ['getPokemon', 'startExpedition', 'endExpedition']),
+    startConfirmation({ RegionId, UserPokemonId }) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Send it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.startExpedition({ RegionId, UserPokemonId })
+        }
+      })
+    },
+    endConfirmation({id}) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'End it'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          this.endExpedition({id})
+        }
+      })
+    }
+  },
+
+  created() {
+    this.getPokemon()
   }
 }
 </script>
@@ -25,8 +69,22 @@ export default {
         background-image: url(https://assets-prd.ignimgs.com/2022/08/03/scarlet-violet-map-ai-1659557720105.jpg);
       "
     >
-      <Marker @click="show = !show" :colorMarker="orange" class="absolute top-72 left-1/2" />
-      <Marker @click="show = !show" :colorMarker="yellow" class="absolute bottom-80 left-96" />
+      <Marker
+        @click="
+          show = !show,
+          RegionId = 1
+        "
+        :colorMarker="orange"
+        class="absolute top-72 left-1/2"
+      />
+      <Marker
+        @click="
+          show = !show,
+          RegionId = 2
+        "
+        :colorMarker="yellow"
+        class="absolute bottom-80 left-96"
+      />
 
       <Transition duration="550" name="nested">
         <div
@@ -35,9 +93,7 @@ export default {
         >
           <div class="inner relative">
             Deploy to region Kanto
-            <button 
-            @click="show = !show"
-            class="absolute top-0 right-0 m-5">
+            <button @click="show = !show" class="absolute top-0 right-0 m-5">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -65,39 +121,25 @@ export default {
               Pokemon Ready to Deploy
             </button>
           </div>
-          <div
-            v-if="pokeList"
-            class="flex w-full h-5/6 flex-wrap overflow-y-auto"
-          >
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
+          <!--Pokemon not in expedition-->
+          <div v-if="pokeList" class="flex w-full h-5/6 flex-wrap overflow-y-auto">
+            <PokemonCard
+              @click="startConfirmation({ RegionId, UserPokemonId: pokemon.id })"
+              :RegionId="RegionId"
+              :pokemon="pokemon"
+              v-for="(pokemon, index) in pokemonNotInExpedition"
+              :key="index"
+            />
           </div>
-          <div
-            @click="show = !show"
-            v-if="pokeList === false"
-            class="flex w-full h-5/6 flex-wrap overflow-y-auto"
-          >
-            <PokemonCard />
-            <PokemonCard />
-            <PokemonCard />
+
+          <!--Pokemon in expedition-->
+          <div v-if="pokeList === false" class="flex w-full h-5/6 flex-wrap overflow-y-auto">
+            <PokemonCard
+            @click="endConfirmation({id:pokemon.id})"
+              :pokemon="pokemon"
+              v-for="(pokemon, index) in pokemonInExpedition"
+              :key="index"
+            />
           </div>
         </div>
       </Transition>
