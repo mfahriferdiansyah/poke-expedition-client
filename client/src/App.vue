@@ -10,7 +10,9 @@ export default {
 
 <template>
   <div class="flex">
-    <vSidebar />
+    <aside class="h-screen sticky top-0">
+      <vSidebar />
+    </aside>
     <RouterView />
   </div>
 
