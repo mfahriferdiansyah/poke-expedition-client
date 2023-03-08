@@ -1,62 +1,95 @@
 <script>
 import Marker from '../components/Marker.vue'
 import PokemonCard from '../components/PokemonCard.vue'
-import { mapActions, mapState } from 'pinia'
+import HomeBanner from '../components/HomeBanner.vue'
+import { mapActions, mapState, mapWritableState } from 'pinia'
 import { usePokemonStore } from '../stores/pokemon'
 
 export default {
   components: {
     Marker,
-    PokemonCard
+    PokemonCard,
+    HomeBanner
   },
   computed: {
-    ...mapState(usePokemonStore, ['pokemonInExpedition', 'pokemonNotInExpedition'])
+    ...mapState(usePokemonStore, ['pokemonInExpedition', 'pokemonNotInExpedition', 'regionList', 'claimReward']),
+    ...mapWritableState(usePokemonStore, ['pokeList', 'show'])
   },
   data() {
     return {
       orange: '#FDB999',
       yellow: '#FEF08A',
-      show: false,
-      pokeList: true,
-      RegionId: ''
+      RegionId: '',
+      isDedployed: true
     }
   },
   methods: {
-    ...mapActions(usePokemonStore, ['getPokemon', 'startExpedition', 'endExpedition']),
-    startConfirmation({ RegionId, UserPokemonId }) {
-      Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Send it'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.startExpedition({ RegionId, UserPokemonId })
-        }
-      })
+    ...mapActions(usePokemonStore, ['getPokemon', 'startExpedition', 'endExpedition', 'getRegion']),
+    capitalLetter(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1)
     },
-    endConfirmation({id}) {
-      Swal.fire({
+    async startConfirmation({ RegionId, UserPokemonId, img, name }) {
+      const result = await Swal.fire({
         title: 'Are you sure?',
-        text: "You won't be able to revert this!",
-        icon: 'warning',
+        text: `${this.capitalLetter(name)} going to do expedition`,
+        imageUrl: img,
+        imageWidth: 400,
+        imageHeight: 200,
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
         cancelButtonColor: '#d33',
-        confirmButtonText: 'End it'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          this.endExpedition({id})
-        }
+        confirmButtonText: 'Send'
       })
+      if (result.isConfirmed) {
+        await this.startExpedition({ RegionId, UserPokemonId })
+        await Swal.fire({
+            title: 'Alright, enjoy the journey!',
+            text: `${this.capitalLetter(name)} deployed!`,
+            imageUrl: img,
+            imageWidth: 400,
+            imageHeight: 200
+        })
+        this.pokeList = !this.pokeList
+      }
+    },
+    async endConfirmation({ id, img, name, time, createdAt }) {
+        let isExpedition = time + new Date(createdAt).getTime() > new Date(Date.now()).getTime()
+        let text = "You will lose all reward and won't be able to revert this!" 
+        let colorButton = '#d33'
+        let confirmText = 'End'
+        if(!isExpedition) {
+            text = 'Congratulations, claim and get the reward'
+            colorButton = '#71A03F'
+            confirmText = 'Claim'
+        }
+        const result = await Swal.fire({
+          title: 'Are you sure?',
+          text: text,
+          imageUrl: img,
+          imageWidth: 400,
+          imageHeight: 200,
+          showCancelButton: true,
+          confirmButtonColor: colorButton,
+          cancelButtonColor: '#3085d6',
+          confirmButtonText: confirmText
+        })
+        if (result.isConfirmed) {
+        await this.endExpedition({ id })
+        this.pokeList = !this.pokeList
+          await Swal.fire({
+            title: 'Alright!',
+            text: `${this.capitalLetter(name)} arrived at home safely with +${this.claimReward} coins.`,
+            imageUrl: img,
+            imageWidth: 400,
+            imageHeight: 200
+          })
+        }
     }
   },
 
   created() {
     this.getPokemon()
+    this.getRegion()
   }
 }
 </script>
@@ -70,18 +103,12 @@ export default {
       "
     >
       <Marker
-        @click="
-          show = !show,
-          RegionId = 1
-        "
+        @click=";(show = !show), (RegionId = 1)"
         :colorMarker="orange"
         class="absolute top-72 left-1/2"
       />
       <Marker
-        @click="
-          show = !show,
-          RegionId = 2
-        "
+        @click=";(show = !show), (RegionId = 2)"
         :colorMarker="yellow"
         class="absolute bottom-80 left-96"
       />
@@ -89,42 +116,25 @@ export default {
       <Transition duration="550" name="nested">
         <div
           v-if="show"
-          class="outer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5/6 w-5/6 justify-center"
+          class="outer rounded-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5/6 w-5/6 justify-center"
         >
           <div class="inner relative">
-            Deploy to region Kanto
-            <button @click="show = !show" class="absolute top-0 right-0 m-5">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="w-6 h-6"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <button
-              @click="pokeList = !pokeList"
-              v-if="pokeList"
-              class="absolute transition ease-in-out delay-150 right-0 bottom-0 m-5"
-            >
-              Pokemon In Expedition
-            </button>
-            <button
-              @click="pokeList = !pokeList"
-              v-if="pokeList != true"
-              class="absolute transition ease-in-out delay-150 right-0 bottom-0 m-5"
-            >
-              Pokemon Ready to Deploy
-            </button>
+            <span v-for="(region, index) in regionList" :key="index">
+                <HomeBanner :region="region" v-if="region.id === RegionId"  />
+            </span>
           </div>
+
           <!--Pokemon not in expedition-->
           <div v-if="pokeList" class="flex w-full h-5/6 flex-wrap overflow-y-auto">
             <PokemonCard
-              @click="startConfirmation({ RegionId, UserPokemonId: pokemon.id })"
+              @click="
+                startConfirmation({
+                  RegionId,
+                  UserPokemonId: pokemon.id,
+                  img: pokemon.image,
+                  name: pokemon.name
+                })
+              "
               :RegionId="RegionId"
               :pokemon="pokemon"
               v-for="(pokemon, index) in pokemonNotInExpedition"
@@ -135,8 +145,25 @@ export default {
           <!--Pokemon in expedition-->
           <div v-if="pokeList === false" class="flex w-full h-5/6 flex-wrap overflow-y-auto">
             <PokemonCard
-            @click="endConfirmation({id:pokemon.id})"
-              :pokemon="pokemon"
+              :expeditionTime="
+                Math.max(
+                  pokemon.time +
+                    new Date(pokemon.createdAt).getTime() -
+                    new Date(Date.now()).getTime(),
+                  0
+                )
+              "
+              :isDeployed="isDedployed"
+              @click="
+                endConfirmation({
+                  id: pokemon.id,
+                  img: pokemon.UserPokemon.image,
+                  name: pokemon.UserPokemon.name,
+                  time: pokemon.time,
+                  createdAt: pokemon.createdAt
+                })
+              "
+              :pokemon="pokemon.UserPokemon"
               v-for="(pokemon, index) in pokemonInExpedition"
               :key="index"
             />

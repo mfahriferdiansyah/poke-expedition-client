@@ -9,6 +9,11 @@ export const usePokemonStore = defineStore('pokemon', {
             access_token: localStorage.access_token || '',
             pokemonInExpedition: '',
             pokemonNotInExpedition: '',
+            regionList: '',
+            pokeList: true,
+            show: false,
+            claimReward: '',
+
         }
     ),
     actions: {
@@ -41,7 +46,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     UserPokemonId: UserPokemonId
                 }
             })
-                .then(( {data} ) => {
+                .then(({ data }) => {
                     console.log(data)
                     this.getPokemon()
                 })
@@ -58,9 +63,26 @@ export const usePokemonStore = defineStore('pokemon', {
                     access_token: this.access_token
                 }
             })
-                .then(( {data} ) => {
+                .then(({ data }) => {
                     console.log(data)
+                    this.claimReward = data.reward
                     this.getPokemon()
+                })
+                .catch(response => {
+                    console.log(response)
+                    console.log(response.response.data.message)
+                })
+        },
+        async getRegion() {
+            await axios({
+                url: baseUrl + '/regions',
+                method: 'GET',
+                headers: {
+                    access_token: this.access_token
+                }
+            })
+                .then(({ data }) => {
+                    this.regionList = data
                 })
                 .catch(response => {
                     console.log(response)
