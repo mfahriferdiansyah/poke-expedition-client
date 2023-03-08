@@ -27,9 +27,9 @@ export default {
   <Transition v-if="this.$route.fullPath === '/gacha'" duration="550" name="nested">
     <div
       v-if="showGacha"
-      class="outer rounded-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5/6 w-5/6 justify-center"
+      class="outer rounded-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 bg-white -translate-y-1/2 h-5/6 w-5/6 justify-center"
     >
-      <div class="inner relative">
+      <div class="inner relative bg-slate-200">
         <img src="../assets/gacha.jpg" alt="" />
         <img
           @click.prevent="midtransGacha"

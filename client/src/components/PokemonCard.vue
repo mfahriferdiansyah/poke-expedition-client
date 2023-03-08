@@ -34,7 +34,9 @@ export default {
         dark: '#2d3436',
         water: '#0190FF'
       }
-      return typeColor[`${type.toLowerCase()}`]
+      let color = typeColor[`${type.toLowerCase()}`]
+      if(!color) return '#2d3436'
+      else return color
     },
   },
 }

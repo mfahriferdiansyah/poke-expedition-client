@@ -117,9 +117,9 @@ export default {
 
     <div
       v-if="show && this.$route.fullPath === '/'"
-      class="outer rounded-sm absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 h-5/6 w-5/6 justify-center"
+      class="outer font-mono absolute top-1/2 left-1/2 transform -translate-x-1/2 rounded-lg bg-white  -translate-y-1/2 h-5/6 w-5/6 justify-center"
     >
-      <div class="inner relative">
+      <div class="inner relative shadow-lg bg-slate-100 rounded-md">
         <span v-for="(region, index) in regionList" :key="index">
           <HomeBanner :region="region" v-if="region.id === RegionId" />
         </span>
@@ -174,13 +174,8 @@ export default {
 <style>
 .outer,
 .inner {
-  background: #eee;
   padding: 30px;
   min-height: 100px;
-}
-
-.inner {
-  background: #ccc;
 }
 
 .nested-enter-active,
