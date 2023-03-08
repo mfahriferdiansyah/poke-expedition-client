@@ -60,13 +60,14 @@ export const usePokemonStore = defineStore('pokemon', {
         },
         async startExpedition({ RegionId, UserPokemonId }) {
             await axios({
-                url: baseUrl + '/explorations/' + RegionId,
+                url: baseUrl + '/explorations',
                 method: 'POST',
                 headers: {
                     access_token: this.access_token
                 },
                 data: {
-                    UserPokemonId: UserPokemonId
+                    UserPokemonId,
+                    RegionId,
                 }
             })
                 .then(({ data }) => {
@@ -137,11 +138,14 @@ export const usePokemonStore = defineStore('pokemon', {
         async gachaPrize() {
             this.waitingAnimation = true
             await axios({
-                url: baseUrl + '/pokemons/2',
+                url: baseUrl + '/pokemons',
                 method: 'POST',
                 headers: {
                     access_token: this.access_token
-                }
+                },                
+                data: {
+                    bannerId: 2
+                },
             })
                 .then(({ data }) => {
                     console.log(data)
