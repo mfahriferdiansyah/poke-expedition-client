@@ -26,6 +26,11 @@ const routes = [
     name: 'register',
     component: RegisterPage
   },
+  {
+    path: "/:catchAll(.*)",
+    name: 'NotFound',
+    redirect: 'home'
+  }
 ]
 
 const router = createRouter({
@@ -33,14 +38,24 @@ const router = createRouter({
   routes
 })
 
-// router.beforeEach((to, from, next) => {
-//   const pokemon = usePokemonStore()
-//   if (from.name === 'gacha') {
-//     setTimeout(() => {
-//       pokemon.showBall = true
-//       next()
-//     }, 500);
-//   }
-// })
+router.beforeEach((to, from, next) => {
+  const pokemon = usePokemonStore()
+  pokemon.access_token = localStorage.access_token
+  if(to.name === 'login' || to.name === 'register'){
+    if(localStorage.access_token){
+      next({name: 'home'})
+    } else {
+      next()
+    }
+  } else if (to.name !== 'login' && to.name !== 'register'){
+    if(!localStorage.access_token){
+      next({name: 'login'})
+    } else {
+      next()
+    }
+  } else {
+    next()
+  }
+})
 
 export default router
