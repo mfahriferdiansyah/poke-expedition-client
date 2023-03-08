@@ -17,6 +17,11 @@ export const usePokemonStore = defineStore('pokemon', {
             waitingAnimation: false,
             loginEmail: '',
             loginPassword: '',
+            regUsername: '',
+            regEmail: '',
+            regPassword: '',
+            regPhone: '',
+            regAddress: '',
         }
     ),
     actions: {
@@ -50,6 +55,7 @@ export const usePokemonStore = defineStore('pokemon', {
             })
                 .then(({ data }) => {
                     console.log(data)
+                    this.alertHandler('success', 'Expedition started')
                     this.getPokemon()
                 })
                 .catch(response => {
@@ -67,6 +73,7 @@ export const usePokemonStore = defineStore('pokemon', {
                 .then(({ data }) => {
                     console.log(data)
                     this.claimReward = data.reward
+                    this.alertHandler('Success', 'Expedition ended')
                     this.getPokemon()
                 })
                 .catch(response => {
@@ -99,8 +106,10 @@ export const usePokemonStore = defineStore('pokemon', {
                 .then(({ data }) => {
                     console.log(data)
                     const gachaCb = this.gachaPrize
+                    const alertHandler = this.alertHandler
                     window.snap.pay(data.token, {
                         onSuccess: function (result) {
+                            alertHandler('success', 'Pokemon arrived soon')
                             gachaCb()
                         }
                     })
@@ -145,7 +154,31 @@ export const usePokemonStore = defineStore('pokemon', {
                     console.log(data)
                     localStorage.access_token = data.access_token
                     this.access_token = data.access_token
+                    this.alertHandler('success', 'Login success')
                     this.router.push('/')
+                })
+                .catch(response => {
+                    this.errorHandler(response)
+                })
+        },
+        async registerHandler() {
+            await axios({
+                url: baseUrl + '/register',
+                method: 'POST',
+                data: {
+                    username: this.regUsername,
+                    email: this.regEmail,
+                    password: this.regPassword,
+                    phoneNumber: this.regPhone,
+                    address: this.regAddress
+                }
+            })
+                .then(({ data }) => {
+                    console.log(data)
+                    this.loginEmail = this.regEmail
+                    this.loginPassword = this.regPassword
+                    this.alertHandler('success', 'Register success')
+                    this.loginHandler()
                 })
                 .catch(response => {
                     this.errorHandler(response)
@@ -154,14 +187,22 @@ export const usePokemonStore = defineStore('pokemon', {
         async logoutHandler() {
             localStorage.clear()
             this.access_token = ''
-            this.loginEmail= ''
-            this.loginPassword= ''
+            this.loginEmail = ''
+            this.loginPassword = ''
+            this.regAddress = '',
+            this.regEmail = '',
+            this.regPhone = '',
+            this.regPassword = '',
             this.router.push('/login')
+            this.alertHandler('success', 'Logout success')
         },
         errorHandler(error) {
             console.log(error)
             console.log(error.response.data.message)
-            let {message} = error.response.data
+            let { message } = error.response.data
+            this.alertHandler('error', message)
+        },
+        alertHandler(sign, message) {
             const Toast = Swal.mixin({
                 toast: true,
                 position: 'top-end',
@@ -169,15 +210,15 @@ export const usePokemonStore = defineStore('pokemon', {
                 timer: 3000,
                 timerProgressBar: true,
                 didOpen: (toast) => {
-                  toast.addEventListener('mouseenter', Swal.stopTimer)
-                  toast.addEventListener('mouseleave', Swal.resumeTimer)
+                    toast.addEventListener('mouseenter', Swal.stopTimer)
+                    toast.addEventListener('mouseleave', Swal.resumeTimer)
                 }
-              })
-              
-              Toast.fire({
-                icon: 'error',
+            })
+
+            Toast.fire({
+                icon: sign,
                 title: message
-              })
+            })
         }
     },
 })
