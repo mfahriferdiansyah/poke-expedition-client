@@ -200,6 +200,9 @@ export const usePokemonStore = defineStore('pokemon', {
             console.log(error)
             console.log(error.response.data.message)
             let { message } = error.response.data
+            if(message === 'Wrong login credential') {
+                this.logoutHandler()
+            }
             this.alertHandler('error', message)
         },
         alertHandler(sign, message) {
