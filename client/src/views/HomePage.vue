@@ -2,6 +2,7 @@
 import Marker from '../components/Marker.vue'
 import PokemonCard from '../components/PokemonCard.vue'
 import HomeBanner from '../components/HomeBanner.vue'
+import StarterGift from '../components/StarterGift.vue'
 import { mapActions, mapState, mapWritableState } from 'pinia'
 import { usePokemonStore } from '../stores/pokemon'
 
@@ -9,14 +10,16 @@ export default {
   components: {
     Marker,
     PokemonCard,
-    HomeBanner
+    HomeBanner,
+    StarterGift
   },
   computed: {
     ...mapState(usePokemonStore, [
       'pokemonInExpedition',
       'pokemonNotInExpedition',
       'regionList',
-      'claimReward'
+      'claimReward',
+      'userDetail'
     ]),
     ...mapWritableState(usePokemonStore, ['pokeList', 'show'])
   },
@@ -29,7 +32,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(usePokemonStore, ['getPokemon', 'startExpedition', 'endExpedition', 'getRegion']),
+    ...mapActions(usePokemonStore, ['getPokemon', 'startExpedition', 'endExpedition', 'getRegion', 'checkPokemon']),
     capitalLetter(str) {
       return str.charAt(0).toUpperCase() + str.slice(1)
     },
@@ -94,7 +97,8 @@ export default {
     }
   },
 
-  created() {
+  async created() {
+    await this.checkPokemon()
     this.getPokemon()
     this.getRegion()
     ;(this.show = false), (this.pokeList = true)
@@ -103,6 +107,7 @@ export default {
 </script>
 
 <template>
+  <StarterGift v-if="!userDetail.UserPokemons.length" />
   <Marker
     @click=";(show = !show), (RegionId = 1)"
     :colorMarker="orange"

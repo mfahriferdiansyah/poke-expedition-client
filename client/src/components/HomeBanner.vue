@@ -1,5 +1,5 @@
 <script>
-import { mapState, mapWritableState } from 'pinia'
+import { mapActions, mapWritableState } from 'pinia'
 import { usePokemonStore } from '../stores/pokemon'
 export default {
   computed: {
