@@ -22,6 +22,7 @@ export const usePokemonStore = defineStore('pokemon', {
             regPassword: '',
             regPhone: '',
             regAddress: '',
+            userDetail: '',
         }
     ),
     actions: {
@@ -37,6 +38,21 @@ export const usePokemonStore = defineStore('pokemon', {
                     console.log(data)
                     this.pokemonInExpedition = data.pokemonInExpedition
                     this.pokemonNotInExpedition = data.pokemonNotInExpedition
+                })
+                .catch(response => {
+                    this.errorHandler(response)
+                })
+        },
+        async checkPokemon(){
+            await axios({
+                url: baseUrl + '/explorations',
+                method: 'GET',
+                headers: {
+                    access_token: this.access_token
+                }
+            })
+                .then(({data}) => {
+                    this.userDetail = data
                 })
                 .catch(response => {
                     this.errorHandler(response)
@@ -73,7 +89,7 @@ export const usePokemonStore = defineStore('pokemon', {
                 .then(({ data }) => {
                     console.log(data)
                     this.claimReward = data.reward
-                    this.alertHandler('Success', 'Expedition ended')
+                    this.alertHandler('success', 'Expedition ended')
                     this.getPokemon()
                 })
                 .catch(response => {
@@ -222,6 +238,7 @@ export const usePokemonStore = defineStore('pokemon', {
                 icon: sign,
                 title: message
             })
-        }
+        },
+
     },
 })
