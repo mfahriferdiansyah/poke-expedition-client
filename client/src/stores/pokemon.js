@@ -14,7 +14,9 @@ export const usePokemonStore = defineStore('pokemon', {
             show: false,
             claimReward: '',
             gachaReward: '',
-            waitingAnimation: false
+            waitingAnimation: false,
+            loginEmail: '',
+            loginPassword: '',
         }
     ),
     actions: {
@@ -32,8 +34,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     this.pokemonNotInExpedition = data.pokemonNotInExpedition
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
         },
         async startExpedition({ RegionId, UserPokemonId }) {
@@ -52,8 +53,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     this.getPokemon()
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
         },
         async endExpedition({ id }) {
@@ -70,8 +70,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     this.getPokemon()
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
         },
         async getRegion() {
@@ -86,8 +85,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     this.regionList = data
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
         },
         async midtransGacha() {
@@ -98,35 +96,20 @@ export const usePokemonStore = defineStore('pokemon', {
                     access_token: this.access_token
                 }
             })
-                .then(({data}) => {
+                .then(({ data }) => {
                     console.log(data)
                     const gachaCb = this.gachaPrize
                     window.snap.pay(data.token, {
-                        onSuccess: function(result){
-                          /* You may add your own implementation here */
-                          
+                        onSuccess: function (result) {
                             gachaCb()
-                        },
-                        // onPending: function(result){
-                        //   /* You may add your own implementation here */
-                        //   alert("wating your payment!"); console.log(result);
-                        // },
-                        // onError: function(result){
-                        //   /* You may add your own implementation here */
-                        //   alert("payment failed!"); console.log(result);
-                        // },
-                        // onClose: function(){
-                        //   /* You may add your own implementation here */
-                        //   alert('you closed the popup without finishing the payment');
-                        // }
-                      })
+                        }
+                    })
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
         },
-        async gachaPrize(){
+        async gachaPrize() {
             this.waitingAnimation = true
             await axios({
                 url: baseUrl + '/pokemons/2',
@@ -135,7 +118,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     access_token: this.access_token
                 }
             })
-                .then(({data}) => {
+                .then(({ data }) => {
                     console.log(data)
                     Swal.fire({
                         title: 'Alright!',
@@ -143,13 +126,58 @@ export const usePokemonStore = defineStore('pokemon', {
                         imageUrl: data.userPokemon.image,
                         imageWidth: 400,
                         imageHeight: 200
-                      })
-                      this.waitingAnimation = false
+                    })
+                    this.waitingAnimation = false
                 })
                 .catch(response => {
-                    console.log(response)
-                    console.log(response.response.data.message)
+                    this.errorHandler(response)
                 })
+        },
+        async loginHandler() {
+            await axios({
+                url: baseUrl + '/login',
+                method: 'POST',
+                data: {
+                    email: this.loginEmail, password: this.loginPassword
+                }
+            })
+                .then(({ data }) => {
+                    console.log(data)
+                    localStorage.access_token = data.access_token
+                    this.access_token = data.access_token
+                    this.router.push('/')
+                })
+                .catch(response => {
+                    this.errorHandler(response)
+                })
+        },
+        async logoutHandler() {
+            localStorage.clear()
+            this.access_token = ''
+            this.loginEmail= ''
+            this.loginPassword= ''
+            this.router.push('/login')
+        },
+        errorHandler(error) {
+            console.log(error)
+            console.log(error.response.data.message)
+            let {message} = error.response.data
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                  toast.addEventListener('mouseenter', Swal.stopTimer)
+                  toast.addEventListener('mouseleave', Swal.resumeTimer)
+                }
+              })
+              
+              Toast.fire({
+                icon: 'error',
+                title: message
+              })
         }
     },
 })

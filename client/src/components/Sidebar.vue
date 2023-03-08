@@ -1,4 +1,14 @@
-<script></script>
+<script>
+import {mapActions} from 'pinia'
+import {usePokemonStore} from '../stores/pokemon'
+
+export default {
+  methods: {
+    ...mapActions(usePokemonStore, ['logoutHandler'])
+  }
+}
+
+</script>
 
 <template>
   <div class="min-h-screen">
@@ -101,7 +111,8 @@
           </button>
         </div>
         <button
-          class="flex justify-start gap-2 bg-blue-800 p-2 text-center text-lg font-semibold text-white"
+        @click="logoutHandler"
+          class="flex justify-start gap-2 bg-blue-800 hover:bg-blue-700 p-2 text-center text-lg font-semibold text-white"
         >
           <svg
             class="h-full w-6 ml-12"
