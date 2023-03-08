@@ -31,14 +31,12 @@ export default {
         poison: '#6c5ce7',
         psychic: '#a29bfe',
         rock: '#2d3436',
+        dark: '#2d3436',
         water: '#0190FF'
       }
       return typeColor[`${type.toLowerCase()}`]
     },
   },
-  created() {
-    console.log('card created')
-  }
 }
 </script>
 
