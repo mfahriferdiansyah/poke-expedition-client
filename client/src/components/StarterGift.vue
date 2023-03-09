@@ -5,7 +5,7 @@ export default {
     methods: {
         ...mapActions(usePokemonStore, ['gachaPrize', 'getPokemon']),
         async changeDialog() {
-            await this.gachaPrize()
+            await this.gachaPrize(1)
             this.claim = false
             await this.getPokemon()
         }
