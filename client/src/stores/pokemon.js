@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-// const baseUrl = "http://localhost:3000/pub";
-const baseUrl = "https://poke-expedition-production.up.railway.app/pub"
+const baseUrl = "http://localhost:3000/pub";
+// const baseUrl = "https://poke-expedition-production.up.railway.app/pub"
 
 
 export const usePokemonStore = defineStore('pokemon', {
@@ -24,6 +24,7 @@ export const usePokemonStore = defineStore('pokemon', {
             regPhone: '',
             regAddress: '',
             userDetail: '',
+            balance: ''
         }
     ),
     actions: {
@@ -54,6 +55,7 @@ export const usePokemonStore = defineStore('pokemon', {
             })
                 .then(({data}) => {
                     this.userDetail = data
+                    this.balance = data.balance
                 })
                 .catch(response => {
                     this.errorHandler(response)
@@ -128,7 +130,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     window.snap.pay(data.token, {
                         onSuccess: function (result) {
                             alertHandler('success', 'Pokemon arrived soon')
-                            gachaCb()
+                            gachaCb(2)
                         }
                     })
                 })
@@ -136,7 +138,44 @@ export const usePokemonStore = defineStore('pokemon', {
                     this.errorHandler(response)
                 })
         },
-        async gachaPrize() {
+        async coinsGacha() {
+            await axios({
+                url: baseUrl + '/user',
+                method: 'PATCH',
+                data: {
+                    price: 10000
+                },
+                headers: {
+                    access_token: this.access_token
+                }
+            })
+                .then(({data}) => {
+                    this.checkUser()
+                    this.gachaPrize(1)
+                })
+                .catch(response => {
+                    this.errorHandler(response)
+                })
+        },
+
+        async checkUser() {
+            await axios({
+                url: baseUrl + '/user',
+                method: 'GET',
+                headers: {
+                    access_token: this.access_token
+                }
+            })
+                .then(({data}) => {
+                    console.log(data)
+                    this.balance = data.balance
+                })
+                .catch(response => {
+                    this.errorHandler(response)
+                })
+        },
+
+        async gachaPrize(bannerId) {
             this.waitingAnimation = true
             await axios({
                 url: baseUrl + '/pokemons',
@@ -145,7 +184,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     access_token: this.access_token
                 },                
                 data: {
-                    bannerId: 2
+                    bannerId: bannerId
                 },
             })
                 .then(({ data }) => {
