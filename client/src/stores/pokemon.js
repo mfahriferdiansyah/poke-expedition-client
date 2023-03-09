@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import axios from 'axios'
-const baseUrl = "http://localhost:3000";
+const baseUrl = "http://localhost:3000/pub";
 
 
 export const usePokemonStore = defineStore('pokemon', {
