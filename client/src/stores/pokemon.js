@@ -175,7 +175,7 @@ export const usePokemonStore = defineStore('pokemon', {
                 })
         },
 
-        async gachaPrize(id) {
+        async gachaPrize(id = 1) {
             this.waitingAnimation = true
             await axios({
                 url: baseUrl + '/pokemons',
@@ -184,7 +184,7 @@ export const usePokemonStore = defineStore('pokemon', {
                     access_token: this.access_token
                 },                
                 data: {
-                    bannerId: '2'
+                    bannerId: id
                 },
             })
                 .then(({ data }) => {
