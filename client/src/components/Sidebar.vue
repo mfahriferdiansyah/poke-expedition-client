@@ -4,7 +4,7 @@ import {usePokemonStore} from '../stores/pokemon'
 
 export default {
   methods: {
-    ...mapActions(usePokemonStore, ['logoutHandler'])
+    ...mapActions(usePokemonStore, ['logoutHandler', 'alertHandler'])
   }
 }
 
@@ -70,6 +70,7 @@ export default {
             <span v-if="this.$route.fullPath !== '/gacha'">Gacha</span>
           </button>
           <button
+          @click="alertHandler('error', 'Under construction')"
             class="flex justify-center gap-2 bg-blue-800 p-2 text-start text-lg font-semibold text-white mx-5 rounded-md"
           >
             <svg
@@ -90,6 +91,7 @@ export default {
             <span>Shop</span>
           </button>
           <button
+          @click="alertHandler('error', 'Under construction')"
             class="flex justify-center gap-2 bg-blue-800 p-2 text-start text-lg font-semibold text-white mx-5 rounded-md"
           >
             <svg
